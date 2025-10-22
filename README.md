@@ -1,12 +1,14 @@
 # 📄 Automated Resume & JD Matcher
 
-<<<<<<< HEAD
+## 🔥 Live Demo  
+[🔗 https://automated-resume-job-description-matcher-352xqza44vo9xf26sn6zw.streamlit.app/]
+
 ### Demo Video : https://www.youtube.com/watch?v=syFheQFF1Jg&t=4s
 [![Watch Demo Video](http://img.youtube.com/vi/syFheQFF1Jg/0.jpg)](https://www.youtube.com/watch?v=syFheQFF1Jg&t=4s)
 
   
 =======
->>>>>>> e9dfee2 (Prepare for Streamlit deployment)
+
 🚀 A powerful AI-powered ATS Resume Analyzer that compares your resume against a job description and provides a structured analysis with match percentage, skill gaps, and improvement suggestions.
 
 ## 🌟 Features
@@ -16,10 +18,9 @@
 ✅ Simple & Minimal UI like Gemini  
 ✅ Powered by Google Gemini API  
 
-## 🔥 Live Demo  
-[🔗 Check it out on Streamlit]
 
-<<<<<<< HEAD
+
+
 ## 🛠 Tech Stack  
 - **Frontend**: Streamlit  
 - **AI Model**: Google Gemini  
@@ -95,7 +96,7 @@ Note: Keep your API keys secret. Do not commit real keys to the repository.
 
 ## Credits
 This project uses Google Gemini via the `google-generativeai` Python package.
->>>>>>> e9dfee2 (Prepare for Streamlit deployment)
+
 
 
 
