@@ -5,20 +5,10 @@ import re
 from fpdf import FPDF
 import tempfile
 import os
-<<<<<<< HEAD
-
-# =====================================
-# Load Secrets from Streamlit Cloud
-# =====================================
-GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
-PROMPT = st.secrets["PROMPT"]
-
-# Configure Google Gemini API
-genai.configure(api_key=GOOGLE_API_KEY)
-=======
 from pathlib import Path
 from dotenv import load_dotenv
 import unicodedata
+
 
 # =====================================
 # Load Secrets (Streamlit secrets > env vars > .env)
@@ -73,7 +63,6 @@ def _sanitize_for_pdf(s: str) -> str:
         return s
     except UnicodeEncodeError:
         return s.encode('ascii', 'ignore').decode('ascii')
->>>>>>> e9dfee2 (Prepare for Streamlit deployment)
 
 # =====================================
 # Streamlit Page Configuration
@@ -88,37 +77,37 @@ st.set_page_config(
 # Custom CSS Styling
 # =====================================
 st.markdown("""
-    <style>
-        .main {
-            background-color: #f8f9fa;
-        }
-        h1 {
-            color: #2b7cff;
-            text-align: center;
-            font-weight: bold;
-        }
-        .stTextArea textarea {
-            font-size: 15px !important;
-        }
-        .upload-box {
-            border: 2px dashed #2b7cff;
-            border-radius: 10px;
-            padding: 20px;
-            background-color: #ffffff;
-        }
-        .result-box {
-            border: 1px solid #2b7cff;
-            border-radius: 8px;
-            padding: 20px;
-            background-color: #ffffff;
-            color: #000000 !important;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-        .stProgress > div > div > div {
-            background-color: #2b7cff;
-        }
-    </style>
+<style>
+    .main {
+        background-color: #f8f9fa;
+    }
+    h1 {
+        color: #2b7cff;
+        text-align: center;
+        font-weight: bold;
+    }
+    .stTextArea textarea {
+        font-size: 15px !important;
+    }
+    .upload-box {
+        border: 2px dashed #2b7cff;
+        border-radius: 10px;
+        padding: 20px;
+        background-color: #ffffff;
+    }
+    .result-box {
+        border: 1px solid #2b7cff;
+        border-radius: 8px;
+        padding: 20px;
+        background-color: #ffffff;
+        color: #000000 !important;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+    .stProgress > div > div > div {
+        background-color: #2b7cff;
+    }
+</style>
 """, unsafe_allow_html=True)
 
 # =====================================
@@ -156,12 +145,10 @@ if st.button("🔍 Analyze Match", use_container_width=True):
         st.error("⚠️ Please upload a resume and enter a job description.")
     else:
         try:
-<<<<<<< HEAD
-=======
             if not GOOGLE_API_KEY:
                 st.error("⚠️ No Google API key found. Add `GOOGLE_API_KEY` to Streamlit secrets or set it as an environment variable. See the README for details.")
                 st.stop()
->>>>>>> e9dfee2 (Prepare for Streamlit deployment)
+
             # Extract resume text
             resume_text = ""
             if resume_file.name.endswith(".txt"):
@@ -185,36 +172,24 @@ if st.button("🔍 Analyze Match", use_container_width=True):
 """
 
                 # Use the latest Gemini model
-<<<<<<< HEAD
-                model = genai.GenerativeModel("models/gemini-2.5-flash")
-                response = model.generate_content(full_prompt)
-=======
                 try:
                     model = genai.GenerativeModel("models/gemini-2.5-flash")
                     response = model.generate_content(full_prompt)
                 except Exception as api_e:
                     st.error(f"🚨 Error calling Google Generative API: {api_e}")
                     st.stop()
->>>>>>> e9dfee2 (Prepare for Streamlit deployment)
 
             # =====================================
             # Display Results
             # =====================================
             st.success("✅ Analysis Complete!")
             st.markdown("### 🧩 Detailed Analysis")
-<<<<<<< HEAD
-            st.markdown(f"<div class='result-box'>{response.text}</div>", unsafe_allow_html=True)
-
-            # Optional: Extract match percentage (if AI provides it)
-            match = re.search(r"(\d{1,3})\s*%", response.text)
-=======
             # response may have different shapes depending on the SDK; try common attributes
             ai_text = getattr(response, "text", None) or getattr(response, "output", None) or str(response)
             st.markdown(f"<div class='result-box'>{ai_text}</div>", unsafe_allow_html=True)
 
             # Optional: Extract match percentage (if AI provides it)
             match = re.search(r"(\d{1,3})\s*%", ai_text)
->>>>>>> e9dfee2 (Prepare for Streamlit deployment)
             score = min(int(match.group(1)), 100) if match else None
 
             if score:
@@ -234,15 +209,9 @@ if st.button("🔍 Analyze Match", use_container_width=True):
             pdf.cell(200, 10, txt="Resume & Job Match Report", ln=True, align="C")
 
             pdf.set_font("Arial", size=12)
-<<<<<<< HEAD
-            pdf.multi_cell(0, 10, txt=f"Match Percentage: {score if score else 'N/A'}%")
-            pdf.ln(5)
-            pdf.multi_cell(0, 10, txt=response.text)
-=======
             pdf.multi_cell(0, 10, txt=_sanitize_for_pdf(f"Match Percentage: {score if score else 'N/A'}%"))
             pdf.ln(5)
             pdf.multi_cell(0, 10, txt=_sanitize_for_pdf(ai_text))
->>>>>>> e9dfee2 (Prepare for Streamlit deployment)
 
             # Save to temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
