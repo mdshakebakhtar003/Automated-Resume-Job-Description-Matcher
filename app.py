@@ -5,6 +5,7 @@ import re
 from fpdf import FPDF
 import tempfile
 import os
+<<<<<<< HEAD
 
 # =====================================
 # Load Secrets from Streamlit Cloud
@@ -14,6 +15,65 @@ PROMPT = st.secrets["PROMPT"]
 
 # Configure Google Gemini API
 genai.configure(api_key=GOOGLE_API_KEY)
+=======
+from pathlib import Path
+from dotenv import load_dotenv
+import unicodedata
+
+# =====================================
+# Load Secrets (Streamlit secrets > env vars > .env)
+# =====================================
+try:
+    GOOGLE_API_KEY = st.secrets.get("GOOGLE_API_KEY") if hasattr(st, "secrets") else None
+    PROMPT = st.secrets.get("PROMPT") if hasattr(st, "secrets") else None
+except Exception:
+    GOOGLE_API_KEY = None
+    PROMPT = None
+
+# Fallback to environment variables
+if not GOOGLE_API_KEY:
+    GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+if not PROMPT:
+    PROMPT = os.environ.get("PROMPT")
+
+# Try loading a local .env file as a last resort
+if (not GOOGLE_API_KEY or not PROMPT) and Path(".env").exists():
+    load_dotenv()
+    if not GOOGLE_API_KEY:
+        GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+    if not PROMPT:
+        PROMPT = os.environ.get("PROMPT")
+
+# Configure Google Gemini API only if key present
+if GOOGLE_API_KEY:
+    try:
+        genai.configure(api_key=GOOGLE_API_KEY)
+    except Exception:
+        # we'll handle API errors at call time
+        pass
+
+
+def _sanitize_for_pdf(s: str) -> str:
+    """Return a PDF-safe (latin-1/ascii) string for FPDF.
+    Replace common unicode punctuation with ASCII equivalents and
+    strip characters that can't be encoded.
+    """
+    if not s:
+        return ""
+    # Common substitutions
+    s = s.replace('\u2013', '-').replace('\u2014', '-')
+    s = s.replace('\u2018', "'").replace('\u2019', "'")
+    s = s.replace('\u201c', '"').replace('\u201d', '"')
+    s = s.replace('\u2026', '...')
+    # Normalize to decompose accents etc.
+    s = unicodedata.normalize('NFKD', s)
+    # Try latin-1; if it fails, fall back to ASCII stripping
+    try:
+        s.encode('latin-1')
+        return s
+    except UnicodeEncodeError:
+        return s.encode('ascii', 'ignore').decode('ascii')
+>>>>>>> e9dfee2 (Prepare for Streamlit deployment)
 
 # =====================================
 # Streamlit Page Configuration
@@ -96,6 +156,12 @@ if st.button("🔍 Analyze Match", use_container_width=True):
         st.error("⚠️ Please upload a resume and enter a job description.")
     else:
         try:
+<<<<<<< HEAD
+=======
+            if not GOOGLE_API_KEY:
+                st.error("⚠️ No Google API key found. Add `GOOGLE_API_KEY` to Streamlit secrets or set it as an environment variable. See the README for details.")
+                st.stop()
+>>>>>>> e9dfee2 (Prepare for Streamlit deployment)
             # Extract resume text
             resume_text = ""
             if resume_file.name.endswith(".txt"):
@@ -119,18 +185,36 @@ if st.button("🔍 Analyze Match", use_container_width=True):
 """
 
                 # Use the latest Gemini model
+<<<<<<< HEAD
                 model = genai.GenerativeModel("models/gemini-2.5-flash")
                 response = model.generate_content(full_prompt)
+=======
+                try:
+                    model = genai.GenerativeModel("models/gemini-2.5-flash")
+                    response = model.generate_content(full_prompt)
+                except Exception as api_e:
+                    st.error(f"🚨 Error calling Google Generative API: {api_e}")
+                    st.stop()
+>>>>>>> e9dfee2 (Prepare for Streamlit deployment)
 
             # =====================================
             # Display Results
             # =====================================
             st.success("✅ Analysis Complete!")
             st.markdown("### 🧩 Detailed Analysis")
+<<<<<<< HEAD
             st.markdown(f"<div class='result-box'>{response.text}</div>", unsafe_allow_html=True)
 
             # Optional: Extract match percentage (if AI provides it)
             match = re.search(r"(\d{1,3})\s*%", response.text)
+=======
+            # response may have different shapes depending on the SDK; try common attributes
+            ai_text = getattr(response, "text", None) or getattr(response, "output", None) or str(response)
+            st.markdown(f"<div class='result-box'>{ai_text}</div>", unsafe_allow_html=True)
+
+            # Optional: Extract match percentage (if AI provides it)
+            match = re.search(r"(\d{1,3})\s*%", ai_text)
+>>>>>>> e9dfee2 (Prepare for Streamlit deployment)
             score = min(int(match.group(1)), 100) if match else None
 
             if score:
@@ -150,9 +234,15 @@ if st.button("🔍 Analyze Match", use_container_width=True):
             pdf.cell(200, 10, txt="Resume & Job Match Report", ln=True, align="C")
 
             pdf.set_font("Arial", size=12)
+<<<<<<< HEAD
             pdf.multi_cell(0, 10, txt=f"Match Percentage: {score if score else 'N/A'}%")
             pdf.ln(5)
             pdf.multi_cell(0, 10, txt=response.text)
+=======
+            pdf.multi_cell(0, 10, txt=_sanitize_for_pdf(f"Match Percentage: {score if score else 'N/A'}%"))
+            pdf.ln(5)
+            pdf.multi_cell(0, 10, txt=_sanitize_for_pdf(ai_text))
+>>>>>>> e9dfee2 (Prepare for Streamlit deployment)
 
             # Save to temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
